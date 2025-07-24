@@ -24,13 +24,14 @@ function utils.getFilesInDirectory(path, pattern)
 	return files, fileCount
 end
 
-local frameworks = { 'es_extended', 'ND_Core', 'ox_core', 'qbx_core','qb-core' }
+local frameworks = { 'es_extended', 'ND_Core', 'ox_core', 'qbx_core', 'qb-core' }
 local sucess = false
 
 for i = 1, #frameworks do
 	local framework = frameworks[i]
 	
 	if GetResourceState(framework):find('start') then
+		if framework == 'qb-core' then framework = 'qb_core' end
 		require(('server.framework.%s'):format(framework:lower()))
 		sucess = true
 		break

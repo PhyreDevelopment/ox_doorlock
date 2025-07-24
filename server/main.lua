@@ -161,7 +161,8 @@ local function createDoor(id, door, name)
 end
 
 local isLoaded = false
-local ox_inventory = exports.ox_inventory
+-- Remove direct ox_inventory usage; rely on framework abstraction
+-- local ox_inventory = exports.ox_inventory
 
 SetTimeout(0, function()
 	if GetPlayer then return end
@@ -169,32 +170,24 @@ SetTimeout(0, function()
 	function GetPlayer(_) end
 end)
 
-function RemoveItem(playerId, item, slot)
-	local player = GetPlayer(playerId)
-
-	if player then ox_inventory:RemoveItem(playerId, item, 1, nil, slot) end
-end
+-- RemoveItem now always uses the framework abstraction
+-- function RemoveItem(playerId, item, slot)
+-- 	local player = GetPlayer(playerId)
+-- 
+-- 	if player then ox_inventory:RemoveItem(playerId, item, 1, nil, slot) end
+-- end
 
 ---@param player table
----@param items string[] | { name: string, remove?: boolean, metadata?: string }[]
----@param removeItem? boolean
----@return string?
+---@param items table -- string[] or { name: string, remove: boolean, metadata: table }[]
+---@param removeItem boolean|nil
+---@return string|nil
 function DoesPlayerHaveItem(player, items, removeItem)
-	local playerId = player.source or player.PlayerData.source
-
-	for i = 1, #items do
-		local item = items[i]
-		local itemName = item.name or item
-		local data = ox_inventory:Search(playerId, 'slots', itemName, item.metadata)[1]
-
-		if data and data.count > 0 then
-			if removeItem or item.remove then
-				ox_inventory:RemoveItem(playerId, itemName, 1, nil, data.slot)
-			end
-
-			return itemName
-		end
+	-- Always use the framework abstraction
+	if _G.DoesPlayerHaveItem and _G.DoesPlayerHaveItem ~= DoesPlayerHaveItem then
+		return _G.DoesPlayerHaveItem(player, items, removeItem)
 	end
+	-- fallback: not available
+	return nil
 end
 
 local function isAuthorised(playerId, door, lockpick)
